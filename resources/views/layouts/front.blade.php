@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
-
+    <script>
+        console.log('after title')
+    </script>
     <meta charset="utf-8">
     <meta name="author" content="John Doe">
     <meta name="description" content="">
@@ -13,8 +15,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <!-- Title -->
-    <title>Home</title>
+
     <!-- Place favicon.ico in the root directory -->
     <link rel="apple-touch-icon" href="{{ asset('front/images/apple-touch-icon.png') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretty-checkbox@3.0/dist/pretty-checkbox.min.css">

@@ -126,7 +126,7 @@
         @yield('content')
     </div>
     <div id="fb-root"></div>
-    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_ES/sdk.js#xfbml=1&version=v3.2&appId=1503393679796720&autoLogAppEvents=1"></script>
+   {{-- <script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_ES/sdk.js#xfbml=1&version=v3.2&appId=1503393679796720&autoLogAppEvents=1"></script>--}}
     <!--Vendor-JS-->
     <script src="{{ asset('front/js/vendor/jquery-1.12.4.min.js') }}"></script>
     <script src="{{ asset('front/js/vendor/bootstrap.min.js') }}"></script>

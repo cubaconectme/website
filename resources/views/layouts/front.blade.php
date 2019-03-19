@@ -36,11 +36,11 @@
     <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet">
 
     <script src="{{ asset('front/js/vendor/modernizr-2.8.3.min.js') }}" rel="stylesheet"></script>
+
+    <script src="{{ asset('js/app.js') }}" defer></script>
     <script>
         console.log('after title')
     </script>
-    <script src="{{ asset('js/app.js') }}" defer></script>
-
     <!--[if lt IE 9]>
     <script src="//oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
     <script src="//oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>

@@ -84,6 +84,7 @@
             window.eventsHub.$on('showUserProfile', () => this.showUserProfile() );
             window.eventsHub.$on('showNewRecharge', () => this.showNewRecharge() );
             this.handleIsLogin();
+            console.log('test123');
         },
         data: function(){
             return {

@@ -92,7 +92,7 @@
                 product_value: '',
                 is_login: false,
                 user_logged: {},
-                test: 'text'
+                test: 'text '
             }
         },
         methods: {

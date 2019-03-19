@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
-    <script>
-        console.log('after title')
-    </script>
+
     <meta charset="utf-8">
     <meta name="author" content="John Doe">
     <meta name="description" content="">
@@ -38,7 +36,9 @@
     <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet">
 
     <script src="{{ asset('front/js/vendor/modernizr-2.8.3.min.js') }}" rel="stylesheet"></script>
-
+    <script>
+        console.log('after title')
+    </script>
     <script src="{{ asset('js/app.js') }}" defer></script>
 
     <!--[if lt IE 9]>

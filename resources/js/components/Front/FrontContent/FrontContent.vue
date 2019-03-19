@@ -91,7 +91,8 @@
                 selected_product: {},
                 product_value: '',
                 is_login: false,
-                user_logged: {}
+                user_logged: {},
+                test: 'text'
             }
         },
         methods: {

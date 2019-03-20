@@ -110,7 +110,8 @@
                 window.axios.post('loginUserAjax', {
                     'username': this.username,
                     'password': this.password,
-                    'remember_me': this.remember_me
+                    'remember_me': this.remember_me,
+                    '_token': document.head.querySelector('meta[name="csrf-token"]')
                 })
                     .then(response => {
                         if(response.data.has_error){

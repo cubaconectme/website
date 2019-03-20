@@ -74,7 +74,7 @@ class LoginController extends Controller
             $user = User::with('recharge')->where('phone_number',$request->username)->first();
             return ['has_error' => false, 'error_message' => 'Usuario logged', 'data' => compact('user')];
         }
-
+        dd(Auth::user()->email);
         return ['has_error' => true, 'error_message' => 'Usuario o password incorrecto'];
     }
 

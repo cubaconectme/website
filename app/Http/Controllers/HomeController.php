@@ -37,7 +37,6 @@ class HomeController extends Controller
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function indexView(){
-        dd('test');
         $products = Product::with(['planes' => function($plan){
             $plan->with('promotions');
         }])->get();

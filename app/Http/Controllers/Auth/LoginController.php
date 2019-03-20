@@ -95,7 +95,7 @@ class LoginController extends Controller
         }
 
 
-        if(filter_var($request->username, FILTER_VALIDATE_EMAIL)){
+        if(filter_var($request->email, FILTER_VALIDATE_EMAIL)){
             $user = User::create([
                 'email' => $request->email,
                 'password' => bcrypt($request->password),

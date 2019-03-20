@@ -111,7 +111,7 @@
                     'username': this.username,
                     'password': this.password,
                     'remember_me': this.remember_me,
-                    '_token': document.head.querySelector('meta[name="csrf-token"]')
+                    '_token': document.head.querySelector('meta[name="csrf-token"]').content
                 })
                     .then(response => {
                         if(response.data.has_error){

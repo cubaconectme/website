@@ -123,7 +123,6 @@
         console.log('after title')
     </script>
     <div id="app">
-        {!! dd('test3' ) !!}
         @yield('content')
     </div>
     <div id="fb-root"></div>

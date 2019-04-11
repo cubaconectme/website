@@ -38,7 +38,6 @@ class HomeController extends Controller
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function indexView(){
-
         $home_data = new HomeViewHelper();
         return view('welcome')->with($home_data->toArray());
     }

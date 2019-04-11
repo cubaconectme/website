@@ -4,6 +4,7 @@
         <td>{{ plan.name }}</td>
         <td>{{ plan.description }}</td>
         <td>{{ plan.price }}</td>
+        <td>{{ plan.balance }}</td>
         <td>{{ plan.product }}</td>
         <td>
             <div>

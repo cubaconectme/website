@@ -9,10 +9,23 @@
                     <span class="text-danger" v-if="error_name">The product name is required</span>
                 </div>
                 <div class="form-group">
+                    <label for="product_placeholder">Product PlaceHolder</label>
+                    <input type="text" class="form-control" v-model="product_placeholder" id="product_placeholder" placeholder="Product Placeholder">
+                    <span class="text-danger" v-if="error_placeholder">The product placeholder is required</span>
+                </div>
+                <div v-if="product_image.length">
+                <span v-for="image in product_image" :key="image.id" style="list-style: none">
+                    <img width="80px" height="80px" :src="image_url"/>
+                </span>
+                </div>
+                <div class="form-group">
+                    <label for="product_image" class="btn btn-primary" style="margin-top: 5px;">Select Image</label>
+                    <input type="file" class="form-control"  id="product_image" @change="uploadProductImage" style="display:none">
+                </div>
+                <div class="form-group">
                     <label for="product_description">Product Description</label>
                     <textarea class="form-control" v-model="product_description" id="product_description" rows="3"></textarea>
                     <span class="text-danger" v-if="error_description">The product description is required</span>
-
                 </div>
             </form>
         </div>
@@ -42,17 +55,41 @@
             return {
                 product_name: '',
                 product_description: '',
+                product_placeholder: '',
+                product_image: '',
                 error_name: false,
                 error_description: false,
+                error_placeholder: false,
                 sending_request: false,
+                image_url: ''
             }
         },
         methods:{
+            uploadProductImage(event){
+                this.product_image = [];
+                let image = event.target.files[0];
+                console.log(image);
+                if(image.type !== 'image/jpeg' && image.type !== 'image/png' && image.type !== 'image/svg+xml') {
+                    this.error_image = true;
+                    return false;
+                }
+                this.product_image.push(image);
+                let image_reader = new FileReader();
+                image_reader.readAsDataURL(this.product_image[0]);
+                image_reader.onload =  (e) => {
+                    this.image_url =  e.target.result;
+                };
+                console.log(image_reader.result);
+                this.image_url = image_reader.result;
+            },
             cleanModal(){
                 this.product_name = '';
                 this.product_description = '';
-                this.error_name = false,
+                this.product_placeholder = '';
+                this.product_image = '';
+                this.error_name = false;
                 this.error_description = false;
+                this.error_placeholder = false;
                 this.sending_request = false;
                 this.$emit('cleanProduct');
             },
@@ -61,7 +98,6 @@
                 this.$emit('closeAddEditModal')
             },
             createProduct(){
-                console.log('creating product');
                 if(!this.product_name){
                     console.log('Error name');
                     this.error_name = true;
@@ -75,11 +111,18 @@
                 }
                 this.sending_request = true;
                 let action_type = (Object.keys(this.product).length) ? 'editProduct' : 'createProduct';
-                window.axios.post('/products/actions', {
-                    action_type: action_type,
-                    product_name: this.product_name,
-                    product_description: this.product_description,
-                    product_id: this.product.product_id
+                let form = new FormData();
+                form.append('action_type',action_type);
+                form.append('product_name',this.product_name);
+                form.append('product_description',this.product_description);
+                form.append('product_placeholder',this.product_placeholder);
+                form.append('product_id',(this.product) ? this.product.product_id : 0);
+                form.append('product_image',this.product_image[0]);
+                console.log(form);
+                window.axios.post('/products/actions', form,{
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
                 })
                     .then( (response) => {
                         this.sending_request = false;

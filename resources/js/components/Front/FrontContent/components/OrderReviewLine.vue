@@ -1,11 +1,11 @@
 <template>
     <tr >
         <td>
-            {{ product.product_value }}
+            {{ phone }}
         </td>
-        <td>{{ product.product }}</td>
+        <td>{{ product_value.product }}</td>
         <td>
-            <em >CUC {{ product.balance }}</em>
+            <em >{{ product_value.balance }}</em>
         </td>
         <td>
             <a class="btn btn-danger btn-xs" @click="showRemoveButtons" v-if="!show_remove_buttons">Remove</a>
@@ -20,7 +20,7 @@
         </td>
         <td >
             <span class="fa fa-tags ng-scope" ></span>
-            <span>USD {{ product.price }}</span>
+            <span>{{ product_value.price }} USD</span>
             <span></span>
         </td>
     </tr>
@@ -31,12 +31,24 @@
         props:{
             product: {
                 required: true
+            },
+            phone: {
+                required: false,
+                default: ''
             }
         },
-        data: () => {
+        data: function(){
             return {
-                show_remove_buttons: false
+                show_remove_buttons: false,
+                phone_number: this.product.product_value,
+                product_value: {}
             }
+        },
+        created(){
+            this.product_value = this.product;
+        },
+        mounted () {
+            //this.props.forceUpdate = true;
         },
         methods: {
             showRemoveButtons(){
@@ -47,6 +59,12 @@
             },
             removePlanFromOrder(){
                 window.eventsHub.$emit('removePlanFromOrder', this.product);
+            }
+        },
+        watch:{
+            product: function(value){
+                //this.product_value = value;
+                this.phone_number = value.product_value;
             }
         }
     }

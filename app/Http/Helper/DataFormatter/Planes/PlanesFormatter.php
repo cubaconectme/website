@@ -29,6 +29,7 @@ class PlanesFormatter extends AbstractDataFormatter
            'is_selected'        => false,
            'product'            => ($this->object->product) ? $this->object->product->name : 'N/A',
            'product_id'         => ($this->object->product) ? $this->object->product->id : null,
+           'date'               => $this->object->created_at->diffForHumans()
        ];
     }
 

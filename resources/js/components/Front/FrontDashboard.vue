@@ -3,7 +3,14 @@
         <pre_loader />
         <front_nav_bar :app_name="app_name" :user="user_logged" />
         <principal_section v-if="!user_logged || active_principal"/>
-        <front_content :products="products" :user="user_logged"/>
+        <front_content
+            :products="products"
+            :user="user_logged"
+            :recharges_prop="recharges"
+            :contacts_prop ="contacts"
+            :planes_cubacel_prop="planes_cubacel"
+            :planes_nauta_prop="planes_nauta"
+        />
         <front_footer />
     </div>
 </template>
@@ -31,6 +38,18 @@
                 required: true,
             },
             user:{
+                required: false
+            },
+            recharges: {
+                required: false
+            },
+            contacts: {
+                required: false
+            },
+            planes_cubacel: {
+                required: false
+            },
+            planes_nauta: {
                 required: false
             }
         },

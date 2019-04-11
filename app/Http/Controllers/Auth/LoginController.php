@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Helper\ControllerHelper\UserHelper\UserLoginHelper;
 use App\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -64,18 +65,12 @@ class LoginController extends Controller
      * @return array
      */
     public function loginAjax(Request $request){
-        if(!$request->username || !$request->password){
-            return ['has_error' => true,'error_message' => 'Wrong Request, please review'];
+        try{
+            $login_user = new UserLoginHelper($request);
+            return ['has_error' => false, 'error_message' => 'Usuario logged', 'data' => $login_user->toArray()];
+        } catch(\Exception $e) {
+            return ['has_error' => true,'error_message' => $e->getMessage()];
         }
-        if(filter_var($request->username, FILTER_VALIDATE_EMAIL) && Auth::attempt(['email' => $request->username, 'password' => $request->password],$request->remember_me)){
-            $user = User::with('recharge')->where('email',$request->username)->first();
-            return ['has_error' => false, 'error_message' => 'Usuario logged', 'data' => compact('user')];
-        } elseif(Auth::attempt(['phone_number' => $request->username, 'password' => $request->password],$request->remember_me)){
-            $user = User::with('recharge')->where('phone_number',$request->username)->first();
-            return ['has_error' => false, 'error_message' => 'Usuario logged', 'data' => compact('user')];
-        }
-        dd(Auth::user()->email);
-        return ['has_error' => true, 'error_message' => 'Usuario o password incorrecto'];
     }
 
     /**

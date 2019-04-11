@@ -4,22 +4,27 @@
             <div class="col-sm-6 col-sm-offset-3">
                 <div class="row">
                     <div class="col-sm-8 col-sm-offset-1">
-                        <h3 class="h2">1. Recarga Cubacel</h3>
+                        <h3 class="h2">1. Recarga {{ product_selected.name }}</h3>
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group">
                         <div class="col-sm-9 col-sm-offset-1">
+
                             <div class="input-group">
                                 <span class="input-group-addon text-muted number-prefix" >
-                                    +53
+                                    {{ productPrefix }}
                                 </span>
-                                <input
-                                    type="text"
-                                    class="form-control number-input"
-                                    v-model="value_product"
-                                    @blur="checkNumber"
-                                    @focus="removeError"
+                                <vue-autocomplete
+                                        :custom_class="'autocomplete-custom-style number-input'"
+                                        :placeholder="''"
+                                        :custom_result="true"
+                                        :isAsync="true"
+                                        :suggestion="'cardSuggestion'"
+                                        :source="autocomplete_source"
+                                        :displayKey="(this.product_selected.name === 'Nauta') ? 'email' : 'number'"
+                                        @input="updateData"
+                                        :complete_value="value_product"
                                 />
                             </div>
                             <span :class="(error_value_product) ? 'text-danger' : 'text-muted'">{{ errorText }}</span>
@@ -38,7 +43,7 @@
                     <div v-else>
                         <div class="row">
                             <div class="col-sm-12">
-                                <div class="col-sm-6 col-sm-offset-3">
+                                <div class="col-sm-8 col-sm-offset-2">
                                     <planes_card v-for="plan in planes" :key="plan.id" :plan="plan" />
                                 </div>
                             </div>
@@ -69,6 +74,16 @@
             product_value: {
                 required: false,
                 default: ''
+            },
+            autocomplete_source: {
+                required: false,
+                default: ''
+            },
+            contact_selected: {
+                required: false
+            },
+            product_selected: {
+                required: true
             }
         },
 
@@ -82,6 +97,23 @@
             this.initProductValue();
         },
         methods: {
+            cardSuggestion(result,source){
+                if(source === 'recharge/getNautaContacts'){
+                    return `<div>
+                            Contact: ${result.name}
+                        </div>
+                        <strong>${result.email}</strong>`;
+                }
+
+                return `<div>
+                            Contact: ${result.name}
+                        </div>
+                        <strong>${result.number}</strong>`;
+            },
+            updateData(search){
+                this.value_product = (typeof search.search_value !== 'undefined') ? search.search_value : search;
+                this.$emit('updateValueProduct',{value_product:this.value_product, all_contact: search.all_object});
+            },
             removeError(){
                 this.error_value_product = false
             },
@@ -97,15 +129,35 @@
                 this.value_product = this.product_value;
             },
             isCorrectPhone(){
-                console.log((!this.value_product || isNaN(this.value_product) || this.value_product.length !== 8 || this.value_product[0] != 5));
                 if(!this.value_product || isNaN(this.value_product) || this.value_product.length !== 8 || this.value_product[0] != 5) {
                     return true;
                 } else {
                     return false;
                 }
+            },
+            isCorrectNauta(){
+                let is_valid = this.value_product.endsWith('@nauta.com.cu');
+                console.log(is_valid);
+            },
+            handleValueProductValidation(){
+                if(this.product_selected.name === 'Cubacel' || this.product_selected.name === 'SMS'){
+                    return this.isCorrectPhone();
+                }else {
+                    return this.isCorrectNauta();
+                }
             }
         },
         computed: {
+            productPrefix(){
+                switch (this.product_selected.name) {
+                    case('Cubacel'):
+                        return '+53';
+                    case('Nauta'):
+                        return '@';
+                    case('SMS'):
+                        return '+53';
+                }
+            },
             isDisabledToSecond(){
                 let disabled_buttons = true;
                 this.planes.forEach((plan)=>{
@@ -114,7 +166,7 @@
                     }
                 });
 
-                return disabled_buttons || this.isCorrectPhone();
+                return disabled_buttons || this.handleValueProductValidation();
             },
             errorText(){
                 if(!this.error_value_product){
@@ -135,6 +187,7 @@
 <style scoped>
     .button {
         border-radius: 0;
+        background-color: #138fc2;
     }
 
     .button[disabled="disabled"], .button[disabled="true"]{
@@ -156,11 +209,11 @@
         background: #f2f3f5;
         color: #34bc9b;
         letter-spacing: 4px;
-        font-size: 26px;
+        font-size: 20px;
         font-family: Nunito, sans-serif;
     }
     .number-input{
-        font-size: 26px;
+        font-size: 20px;
         letter-spacing: 4px;
         padding: 8px;
         padding-left: 27px;

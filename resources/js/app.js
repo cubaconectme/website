@@ -10,8 +10,9 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import PrettyInput from 'pretty-checkbox-vue/input';
 import PrettyCheck from 'pretty-checkbox-vue/check';
 import PrettyRadio from 'pretty-checkbox-vue/radio';
+import VueEdit from './components/General/VueEdit'
 
-
+import VueAutocomplete from './components/General/VueAutocomplete'
 
 require('./bootstrap');
 
@@ -41,6 +42,11 @@ const options = {
     info: toast,
     warn: toast
 };
+
+Vue.filter('currency', function (value, places = 2) {
+    if(!value) return '$ 0.00';
+    return '$ ' + parseFloat(value).toFixed(places);
+});
 
 Vue.use(VueNotifications, options);
 
@@ -89,7 +95,8 @@ window.eventsHub = new Vue({
 });
 
 
-
+Vue.component('vue-edit',VueEdit);
+Vue.component('vue-autocomplete', VueAutocomplete);
 Vue.component('font-awesome-icon',FontAwesomeIcon);
 /**
  * The following block of code may be used to automatically register your
@@ -141,9 +148,6 @@ Vue.component('adorable_avatar', require('./components/General/AdorableAvatar.vu
  * Front End Part
  */
 Vue.component('front_dashboard', require('./components/Front/FrontDashboard.vue').default);
-
-
-
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

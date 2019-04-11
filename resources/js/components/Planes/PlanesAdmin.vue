@@ -8,6 +8,7 @@
                 <th scope="col">Name</th>
                 <th scope="col">Description</th>
                 <th scope="col">Price</th>
+                <th scope="col">Balance</th>
                 <th scope="col">Product</th>
                 <th scope="col">Actions</th>
             </tr>

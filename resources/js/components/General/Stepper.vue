@@ -1,57 +1,54 @@
 <template>
     <div class="stepper-vue">
-        <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" :class="(active_view === 1) ? 'active' : ''">
-                <a class="persistant-disabled tab-vue-stepper" @click="handleTabsClick(1)">
-                    <span class="round-tab">1</span>
-                </a>
-            </li>
-            <li role="presentation" :class="(active_view === 2) ? 'active' : ''">
-                <a class="persistant-disabled tab-vue-stepper" @click="handleTabsClick(2)">
-                    <span class="round-tab">2</span>
-                </a>
-            </li>
-            <li role="presentation" :class="(active_view === 3) ? 'active' : ''">
-                <a class="persistant-disabled tab-vue-stepper" @click="handleTabsClick(3)">
-                    <span class="round-tab">3</span>
-                </a>
-            </li>
-            <li role="presentation" :class="(active_view === 4) ? 'active' : ''">
-                <a class="persistant-disabled tab-vue-stepper" @click="handleTabsClick(4)">
-                    <span class="round-tab">4</span>
-                </a>
-            </li>
-        </ul>
+        <div class="row" style="border-bottom: 1px solid #ddd;">
+            <div class="col-sm-10 col-sm-offset-2">
+                <ul class="nav nav-tabs text-center" >
+                    <li role="presentation" :class="(active_view === 1) ? 'active' : ''">
+                        <a class="tab-vue-stepper" :class="(active_view > 1) ? 'completed': ''">
+                            <span class="round-tab">1</span>
+                        </a>
+                    </li>
+                    <li role="presentation" :class="(active_view === 2) ? 'active' : ''">
+                        <a class="tab-vue-stepper" :class="(active_view > 2) ? 'completed': ''">
+                            <span class="round-tab">2</span>
+                        </a>
+                    </li>
+                    <li role="presentation" :class="(active_view === 3) ? 'active' : ''">
+                        <a class="tab-vue-stepper" :class="(active_view > 3) ? 'completed': ''">
+                            <span class="round-tab">3</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
         <form role="form">
             <div class="tab-content">
                 <div class="tab-pane" :class="(active_view === 1) ? 'active' : ''">
-                    <cubacel_recharge :planes="planes" :product_value="product_value" @nextStep="nextStep"/>
+                    <cubacel_recharge
+                        :planes="planes"
+                        :product_value="product_value"
+                        :autocomplete_source="autocomplete_source"
+                        :contact_selected="selected_contact"
+                        @nextStep="nextStep"
+                        @updateValueProduct="updateValueProduct"
+                        :product_selected="product_selected"
+                    />
                 </div>
                 <div class="tab-pane" :class="(active_view === 2) ? 'active' : ''">
                     <review_and_pay
                         :plan_data="plan_data"
                         @backStep="backStep"
                         :value_product="value_product"
+                        :contact_selected="selected_contact"
+                        @nextStep="nextStep"
                     />
                 </div>
                 <div class="tab-pane" :class="(active_view === 3) ? 'active' : ''">
-                    <h3 class="hs">3. Procesar el Pago</h3>
-                    <p>This is step 3</p>
-                    <ul class="list-inline pull-right">
-                        <li>
-                            <a class="btn button button-default prev-step" @click="backStep">Back</a>
-                        </li>
-                        <li>
-                            <a class="btn button button-default cancel-stepper">Cancel Payment</a>
-                        </li>
-                        <li>
-                            <a class="btn button next-step">Submit Payment</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="tab-pane" :class="(active_view === 4) ? 'active' : ''">
-                    <h3>4. All done!</h3>
-                    <p>You have successfully completed all steps.</p>
+                    <recharge_sumary
+                        :plan_data="plan_data"
+                        :value_product="value_product"
+                        :contact_selected="selected_contact"
+                    />
                 </div>
             </div>
         </form>
@@ -61,10 +58,12 @@
 <script>
     import CubacelRecharge from '../Front/FrontContent/components/CubacelRecharge'
     import ReviewAndPay from '../Front/FrontContent/components/ReviewAndPay'
+    import RechargeSumary from '../Front/FrontContent/components/RechargeSummary'
     export default {
         components:{
             'cubacel_recharge': CubacelRecharge,
-            'review_and_pay': ReviewAndPay
+            'review_and_pay': ReviewAndPay,
+            'recharge_sumary': RechargeSumary
         },
         props:{
             planes: {
@@ -76,6 +75,13 @@
             },
             product_selected:{
                 required: true
+            },
+            autocomplete_source: {
+                required: false,
+                default: ''
+            },
+            contact_selected:{
+                required: false,
             }
         },
         data: function(){
@@ -83,12 +89,17 @@
                 active_view: 1,
                 value_product: this.product_value,
                 plan_data: {},
+                selected_contact: this.contact_selected
             }
         },
         created: function() {
             window.eventsHub.$on('removePlanFromOrder', (product) => this.removeFromOrder(product))
         },
         methods: {
+            updateValueProduct(value_product){
+                this.value_product = value_product.value_product;
+                this.$emit('updateContact', value_product.all_contact)
+            },
             removeFromOrder(product){
                 this.plan_data = this.plan_data.filter( plan => plan.plan_id !== product.plan_id);
             },
@@ -124,6 +135,9 @@
         watch: {
             product_value:function(value){
                 this.value_product = value;
+            },
+            contact_selected: function(value){
+                this.selected_contact = value;
             }
         }
     }
@@ -149,6 +163,7 @@
     */
     .stepper-vue .nav-tabs {
         position: relative;
+        border-bottom: none;
     }
 
     .stepper-vue .nav-tabs > li {
@@ -179,9 +194,8 @@
     .stepper-vue .nav-tabs > li:last-child {
         background: transparent;
     }
-
     .stepper-vue .nav-tabs > li:last-child:after{
-        background: transparent;
+        content: none;
     }
     .stepper-vue .nav-tabs > li .active:last-child .round-tab{
         background: #34bc9b;
@@ -228,9 +242,9 @@
         line-height: 22px;
         display: inline-block;
         border-radius: 25px;
-        background: #fff;
-        border: 2px solid #34bc9b;
-        color: #34bc9b;
+        background: #d2f1fb;
+        border: 2px solid #9ab8c2;
+        color: #9ab8c2;
         z-index: 2;
         position: absolute;
         left: 0;
@@ -238,9 +252,11 @@
         font-size: 14px;
 
     }
-    .stepper-vue .completed .round-tab{
-        background: #34bc9b;
 
+    .stepper-vue .completed .round-tab{
+        background: #138fc2;
+        border: 2px solid #138fc2;
+        color: #138fc2;
     }
 
     .stepper-vue .completed .round-tab:after {
@@ -256,7 +272,8 @@
 
     .stepper-vue .active .round-tab {
         background: #fff;
-        border: 2px solid #34bc9b;
+        border: 2px solid #138fc2;
+        color: #138fc2;
     }
 
     .stepper-vue .active .round-tab:hover{

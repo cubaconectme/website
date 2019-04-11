@@ -11,7 +11,7 @@ class Planes extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'description', 'price', 'product_id'
+        'name', 'description', 'price', 'product_id','balance'
     ];
 
 

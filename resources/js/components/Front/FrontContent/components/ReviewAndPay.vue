@@ -11,30 +11,18 @@
                     <legend style="width:auto; padding-right: 3px">Tarjeta de Credito/Debito</legend>
                     <div class="row">
                         <div class="col-sm-12">
-                            <div class="form-input col-sm-6" style="margin-right: 0; padding-right: 0;">
-                                <input name="number" placeholder="Numero" type="tel" class="form-control" style="border-top-right-radius: 0;border-bottom-right-radius: 0;" v-model="card_value.number" v-card-focus>
-                            </div>
-                            <div class="form-input col-sm-6" style="margin-left: 0; padding-left: 0;">
-                                <input name="name" placeholder="Nombre en la tarjeta" type="text" class="form-control" style="border-left: none; border-top-left-radius: 0;border-bottom-left-radius: 0;" v-model="card_value.name" v-card-focus>
-                            </div>
+                            <span v-if="card_error" class="text text-danger">{{ card_error_message }}</span>
+                            <div ref="card"></div>
+                            <button @click="purchase" class="button pull-right" style="margin-top: 5px" :disabled="processing_card">
+                                <span v-if="!processing_card">
+                                    Pagar {{ totalAmount | currency }}
+                                </span>
+                                <span v-else>
+                                    <font-awesome-icon icon="sync" class="fa-spin"/>
+                                </span>
+                            </button>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="col-sm-6" style="margin-left: 0; padding-left: 0;">
-                                <div class="form-input col-sm-6" style="margin-right: 0; padding-right: 0;">
-                                    <input name="expiry" placeholder="MM/YY" type="tel" class="form-control" style="border-top-right-radius: 0;border-bottom-right-radius: 0;" v-model="card_value.expiry" v-card-focus>
-                                </div>
-                                <div class="form-input col-sm-6" style="margin-left: 0; padding-left: 0;">
-                                    <input name="cvc" placeholder="CVC" type="number" class="form-control" style="border-left: none; border-top-left-radius: 0;border-bottom-left-radius: 0;" v-model="card_value.cvc" v-card-focus>
-                                </div>
-                            </div>
-                            <div class="col-sm-6" >
-                                <input name="zip_code" placeholder="12345" type="tel" class="form-control" v-model="card_value.zip_code" v-card-focus>
-                            </div>
-                        </div>
-                    </div>
-                    <credit_card :value="card_value"/>
                 </fieldset>
             </div>
             <div class="col-sm-6">
@@ -46,6 +34,7 @@
                         :client="paypal_credentials"
                         env="sandbox"
                         :button-style="paypal_button_style"
+                        @payment-completed="paymentCompleted"
                     />
                 </fieldset>
             </div>
@@ -54,18 +43,30 @@
             <li>
                 <a class="btn button button-default hand prev-step" @click="backStep">Back</a>
             </li>
-            <li>
-                <a class="btn button next-step hand" @click="nextStep">Next</a>
-            </li>
         </ul>
     </div>
 </template>
-
 <script>
     import Paypal from 'vue-paypal-checkout'
     import OrderReview from './OrderReview'
     import VueCreditCard from 'vue-credit-card'
 
+    let stripe = Stripe(`pk_test_sLeOVUkXhyDmZMk1w64xDIhF`),
+        elements = stripe.elements(),
+        card = undefined;
+
+    let style = {
+        base: {
+            border: '1px solid #D8D8D8',
+            borderRadius: '4px',
+            color: "#000",
+        },
+
+        invalid: {
+            // All of the error styles go inside of here.
+        }
+
+    };
 
     let defaultProps = {
         number: '',
@@ -92,7 +93,6 @@
             Paypal,
             'order_review':OrderReview,
             'credit_card': VueCreditCard,
-
         },
         props:{
             plan_data: {
@@ -100,16 +100,100 @@
             },
             value_product:{
                 required: true
+            },
+            contact_selected: {
+                required: false
             }
         },
         data: () => {
             return {
                 card_value: defaultProps,
                 paypal_credentials: paypalCredentials,
-                paypal_button_style: buttonsStyle
+                paypal_button_style: buttonsStyle,
+                card_error: false,
+                card_error_message: '',
+                processing_card: false
             }
         },
+        mounted: function(){
+            if(typeof card === 'undefined'){
+                card = elements.create('card',{style: style});
+            }
+
+            card.mount(this.$refs.card);
+            card.addEventListener('change',() => {
+                this.handleCardError();
+            });
+        },
         methods: {
+            handleCardError(){
+                this.card_error = false;
+                this.card_error_message = '';
+            },
+            purchase(e){
+                console.log('aqui',e);
+                e.preventDefault();
+                stripe.createToken(card).then((result) => {
+                    if(typeof result.error !== 'undefined'){
+                        this.card_error = true;
+                        this.card_error_message = result.error.message;
+                    } else {
+                        this.payWithCard(result);
+                    }
+                });
+            },
+            payWithCard(result){
+                if(!result.token){
+                    this.card_error = true;
+                    this.card_error_message = 'Error procesando la tarjeta, intentelo mas tarde';
+                    return false;
+                }
+                this.processing_card = true;
+                window.axios.post('recharge/action', {
+                    action_type: 'payWithCard',
+                    recharges: this.plan_data,
+                    card_response: result.token,
+                    type: this.plan_data[0].product
+                })
+                    .then(response_data => {
+                        this.processing_card = false;
+                        if(!response_data.data.has_error){
+                            window.eventsHub.$emit('updateContact',response_data.data.data.contact);
+                            this.nextStep();
+                        } else {
+                            window.eventsHub.showErrorMsg({message: 'Card Error, please try again!!!'});
+                        }
+                    })
+                    .catch( error => {
+                        console.log(error);
+                    });
+               console.log(result);
+            },
+            paymentCompleted(response){
+                if(response.state === 'approved'){
+                    window.axios.post('recharge/action', {
+                        action_type: 'payWithPaypal',
+                        recharges: this.plan_data,
+                        paypal_response: response,
+                        type: this.plan_data[0].product
+                    })
+                        .then(response_data => {
+                            console.log(response_data.data);
+                            if(!response_data.data.has_error){
+                               this.nextStep();
+                                window.eventsHub.$emit('updateContact',response_data.data.data.contact);
+                               console.log('asui')
+                            } else {
+                                window.eventsHub.showErrorMsg({message: 'Paypal Error, please try again!!!'});
+                            }
+                        })
+                        .catch(error=> {
+                            console.log(error);
+                        });
+                } else {
+                    window.eventsHub.showErrorMsg({message: 'Paypal Error, please try again!!!'});
+                }
+            },
             backStep(){
                 this.$emit('backStep')
             },
@@ -136,6 +220,7 @@
 <style scoped>
     .button {
         border-radius: 0;
+        background-color: #138fc2;
     }
 
     .button[disabled="disabled"], .button[disabled="true"]{
@@ -152,5 +237,32 @@
         transition: 0.5s;
         background: white;
         color: #1d68a7;
+    }
+    .StripeElement {
+        box-sizing: border-box;
+
+        height: 40px;
+
+        padding: 10px 12px;
+
+        border: 1px solid transparent;
+        border-radius: 4px;
+        background-color: white;
+
+        box-shadow: 0 1px 3px 0 #e6ebf1;
+        -webkit-transition: box-shadow 150ms ease;
+        transition: box-shadow 150ms ease;
+    }
+
+    .StripeElement--focus {
+        box-shadow: 0 1px 3px 0 #cfd7df;
+    }
+
+    .StripeElement--invalid {
+        border-color: #fa755a;
+    }
+
+    .StripeElement--webkit-autofill {
+        background-color: #fefde5 !important;
     }
 </style>

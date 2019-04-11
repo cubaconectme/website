@@ -22,6 +22,11 @@
                     <span class="text-danger" v-if="error_name">The plan price is required</span>
                 </div>
                 <div class="form-group">
+                    <label for="price">Balance</label>
+                    <input type="text" class="form-control" v-model="balance" id="balance" placeholder="$0.00">
+                    <span class="text-danger" v-if="error_balance">The plan balance is required</span>
+                </div>
+                <div class="form-group">
                     <label for="plan_description">Plan Description</label>
                     <textarea class="form-control" v-model="plan_description" id="plan_description" rows="3"></textarea>
                     <span class="text-danger" v-if="error_description">The plan description is required</span>
@@ -60,8 +65,10 @@
                 plan_description: '',
                 product_id: 0,
                 price: '',
+                balance: '',
                 error_name: false,
                 error_description: false,
+                error_balance: false,
                 sending_request: false,
             }
         },
@@ -101,6 +108,7 @@
                     plan_description: this.plan_description,
                     product_id: this.product_id,
                     price: this.price,
+                    balance: this.balance,
                     plan_id: this.plan.plan_id
                 })
                     .then( (response) => {

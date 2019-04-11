@@ -10,7 +10,10 @@ namespace App\Http\Helper\ControllerHelper\ProductHelper;
 
 use App\Http\Helper\DataFormatter\Product\ProductFormatter;
 use App\Product;
+use Faker\Provider\Image;
+use Illuminate\Http\File;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductHelper
 {
@@ -56,10 +59,23 @@ class ProductHelper
             return false;
         }
         $this->product = Product::create([
-            'name' => $this->request->product_name,
-            'description' => $this->request->product_description
+            'name'                  => $this->request->product_name,
+            'description'           => $this->request->product_description,
+            'product_placeholder'   => $this->request->product_placeholder,
+            'image_url'             =>  $this->uploadImage()
         ]);
         $this->product = new ProductFormatter($this->product);
+   }
+
+
+   private function uploadImage(){
+       if ($this->request->hasFile('product_image')) {
+           $image  = $this->request->file('product_image');
+           $name = time().'.'.$image->getClientOriginalExtension();
+           $image->move(public_path('images/products'), $name);
+           return 'images/products/'.$name;
+       }
+       return '';
    }
 
     /**
@@ -95,6 +111,8 @@ class ProductHelper
 
        $this->product->name = $this->request->product_name;
        $this->product->description = $this->request->product_description;
+       $this->product->product_placeholder = $this->request->product_placeholder;
+       $this->product->image_url = $this->uploadImage();
        $this->product->save();
        $this->product = new ProductFormatter($this->product);
    }

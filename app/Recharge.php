@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Observers\RechargeObserver;
 use Illuminate\Database\Eloquent\Model;
 
 class Recharge extends Model
@@ -11,7 +12,7 @@ class Recharge extends Model
      * @var array
      */
     protected $fillable = [
-        'number', 'user_id', 'contact_id'
+        'recharge_type', 'recharge_type_id', 'user_id', 'contact_id','product_id','plan_id','promotion_id','payment_method','payment_id','status', 'follow_up_number'
     ];
 
     /**
@@ -40,10 +41,27 @@ class Recharge extends Model
     }
 
     /**
+     * Get the child relations
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    public function child(){
+        return $this->morphTo(null,'recharge_type','recharge_type_id');
+    }
+
+    /**
      * Relation with user
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function promotion(){
         return $this->belongsTo(Promotion::class);
+    }
+
+    /**
+     * RKO Request BOOT method
+     */
+    public static function boot()
+    {
+        parent::boot();
+        self::observe(new RechargeObserver());
     }
 }

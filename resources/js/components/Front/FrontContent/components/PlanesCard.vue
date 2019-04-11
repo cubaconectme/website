@@ -12,7 +12,7 @@
             </div>
             <div>
                 <p>
-                    <span class="dn-currency" data-testid="localCurrency-1">CUC</span>
+                    <!--<span class="dn-currency" data-testid="localCurrency-1">CUC</span>-->
                     <span class="dn-amount" data-testid="localAmount-1"> {{ plan.balance }}</span>
                 </p>
             </div>
@@ -48,6 +48,6 @@
         cursor: pointer;
     }
     .card_selected{
-        border:solid 2px #1cc88a;
+        border:solid 1px #1cc88a;
     }
 </style>

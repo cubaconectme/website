@@ -48,6 +48,21 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class);
     }
 
+    /**
+     * User relation withs her paypal payments
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function paypal_payments(){
+        return $this->hasMany(PaypalPayment::class);
+    }
+
+    /**
+     * Relation with paypal payer
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function paypal_payer(){
+        return $this->hasMany(PaypalPayer::class);
+    }
 
 
     /**
@@ -99,6 +114,13 @@ class User extends Authenticatable
      */
     public function recharge(){
         return $this->hasMany(Recharge::class,'user_id','id');
+    }
+
+    /**
+     * Relation with recharges
+     */
+    public function contacts(){
+        return $this->hasMany(Contact::class,'user_id','id');
     }
 
 }

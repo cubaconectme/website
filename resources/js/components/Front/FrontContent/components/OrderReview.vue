@@ -4,7 +4,7 @@
         <table class="table table-condensed"  v-else>
             <thead>
             <tr class="dn-mobile-hide">
-                <th>Número de Teléfono</th>
+                <th>Destinatario</th>
                 <th>Operator</th>
                 <th>Receive amount</th>
                 <th></th>
@@ -12,7 +12,13 @@
             </tr>
             </thead>
             <tbody>
-            <tr is="order-review-line" v-for="product in products" :key="product.plan_id" :product="product"></tr>
+            <tr
+                is="order-review-line"
+                v-for="product in products"
+                :key="product.plan_id"
+                :product="product"
+                :phone="product.product_value"
+            ></tr>
             <tr>
                 <td colspan="4" class="text-right">
                     <strong>
@@ -45,7 +51,7 @@
                 default: '0'
             }
         },
-        data: ()=>{
+        data: function(){
             return {}
         },
         methods: {},
@@ -54,5 +60,7 @@
 </script>
 
 <style scoped>
-
+    .table .table{
+        background: none;
+    }
 </style>

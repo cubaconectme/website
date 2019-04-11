@@ -9,36 +9,64 @@
             <p @click="handleProduct">{{ product.description }}</p>
             <slot name="input"></slot>
             <div class="row text-center">
-                <div class="col-sm-1 number-prefix-container" v-if="product.name !== 'Nauta'">
-                    <h4 class="text-muted number-prefix"> +53</h4>
-                </div>
-                <div :class="(product.name === 'Nauta') ? 'col-sm-12': 'col-sm-10'">
-                    <input type="text" id="product_name" name="product_name" v-model="product_value_data" :placeholder="product.product_placeholder" class="form-control" >
+                <div class="products-card col-sm-12" >
+                    <div class="input-group">
+                        <span class="input-group-addon" v-html="prepend"></span>
+                        <vue-autocomplete
+                            :custom_class="customClass"
+                            :placeholder="product.product_placeholder"
+                            :custom_result="true"
+                            :isAsync="true"
+                            :suggestion="'cardSuggestion'"
+                            :source="getSource"
+                            :displayKey="'number'"
+                            @input="updateData"
+                        >
+                        </vue-autocomplete>
+                    </div>
                 </div>
             </div>
-            <h3><a class="hand card-button" :class="isMouseOver" @click="handleProduct"> Recargar </a></h3>
+            <div class="row button-row">
+                <h3><a class="hand card-button" :class="isMouseOver" @click="handleProduct"> Recargar </a></h3>
+            </div>
         </div>
     </div>
 </template>
-
 <script>
     //TODO: Change Product admin base on this
-    //front/images/undraw_calling_kpbp.svg
     export default {
         props: {
             product: {
                 required: true
             },
+            prepend:{
+                required: false,
+                default: '+53'
+            }
         },
         data: function(){
             return {
                 is_mouse_over: false,
-                product_value_data: ''
+                product_value_data: '',
+                query: '',
+                contact_selected: {}
             }
         },
         methods: {
+            updateData(search){
+                this.product_value_data = (typeof search.search_value !== 'undefined') ? search.search_value: search;
+                this.contact_selected = search.all_object;
+                this.$emit('updateContactSelected', this.contact_selected);
+            },
+            cardSuggestion(result){
+                return `<div>
+                            Contact: ${result.name}
+                        </div>
+                        <strong>${result.number}</strong>`;
+            },
+
             handleProduct: function(){
-                this.$emit('changeActiveView',{product: this.product, product_value: this.product_value_data});
+                this.$emit('changeActiveView',{product: this.product, product_value: this.product_value_data,autocomplete_source:this.getSource});
             },
             handleMouseEnter: function(){
                 this.is_mouse_over = true;
@@ -53,21 +81,44 @@
                     return 'border_button'
                 }
                 return '';
+            },
+            customClass: function(){
+                return 'autocomplete-custom-style';
+            },
+            getSource: function(){
+                switch (this.product.name) {
+                    case('Cubacel'):
+                        return 'recharge/getCubacelContacts';
+                    case('Nauta'):
+                        return 'recharge/getNautaContacts';
+                    case('SMS'):
+                        return 'recharge/getSMSContacts';
+
+                }
             }
         },
     }
 </script>
 
 <style scoped>
+    .autocomplete-custom-style{
+        border-radius: 0;
+    }
+    .button-row{
+        margin-top:25px;
+    }
     .hand_cursor{
         cursor: pointer;
     }
     .card-button{
         border-radius: 5px;
         padding: 5px 15px;
+        color: #138fc2;
+        border: solid 1px #138fc2;
     }
     .border_button{
-        border: solid 1px #06cec4;
+        background-color: #138fc2;
+        color: white;
     }
     .number-prefix{
         margin-top: 14px;

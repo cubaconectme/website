@@ -10,6 +10,8 @@
                         :key="product.id"
                         @changeActiveView="handleChangeView"
                         :product_value="product_value"
+                        :prepend="handlePrepend(product)"
+                        @updateContactSelected="updateContactSelected"
                     />
                 </div>
                     <login
@@ -29,6 +31,10 @@
                     <user_dashboard
                         :user="user_logged"
                         v-if="active_view === 'user_dashboard'"
+                        :recharges="recharges"
+                        :contacts="contacts"
+                        :planes_cubacel="planes_cubacel"
+                        :planes_nauta="planes_nauta"
                     />
                     <div class="row" v-if="active_view === 'Cubacel'" >
                         <back_buttons @goBackToCards="goBackToCards" />
@@ -36,15 +42,32 @@
                                 :planes="selected_product.planes"
                                 :product_value="product_value"
                                 :product_selected="selected_product"
+                                :autocomplete_source="autocomplete_source"
+                                :contact_selected="contact_selected"
+                                @updateContact="updateContact"
                         />
                     </div>
                     <div class="row" v-if="active_view === 'Nauta'">
                         <back_buttons @goBackToCards="goBackToCards" />
-                        Nauta
+                        <stepper
+                                :planes="selected_product.planes"
+                                :product_value="product_value"
+                                :product_selected="selected_product"
+                                :autocomplete_source="autocomplete_source"
+                                :contact_selected="contact_selected"
+                                @updateContact="updateContact"
+                        />
                     </div>
                     <div class="row" v-if="active_view === 'SMS'">
                         <back_buttons @goBackToCards="goBackToCards" />
-                        SMS
+                        <stepper
+                                :planes="selected_product.planes"
+                                :product_value="product_value"
+                                :product_selected="selected_product"
+                                :autocomplete_source="autocomplete_source"
+                                :contact_selected="contact_selected"
+                                @updateContact="updateContact"
+                        />
                     </div>
                 </div>
         </transition>
@@ -74,16 +97,19 @@
             },
             user: {
                 required:true
-            }
-        },
-        created: function(){
-            this.user_logged = this.user;
-            window.eventsHub.$on('handleSelectPlanCard', (plan) => {this.handleSelectedPlanCard(plan)});
-            window.eventsHub.$on('removePlanFromOrder', plan => this.handleRemovePlanFromOrder(plan) );
-            window.eventsHub.$on('showView', view => this.handleShowView(view) );
-            window.eventsHub.$on('showUserProfile', () => this.showUserProfile() );
-            window.eventsHub.$on('showNewRecharge', () => this.showNewRecharge() );
-            this.handleIsLogin();
+            },
+            recharges_prop: {
+                required: false
+            },
+            contacts_prop: {
+                required: false
+            },
+            planes_cubacel_prop: {
+                required: false
+            },
+            planes_nauta_prop: {
+                required: false
+            },
         },
         data: function(){
             return {
@@ -92,10 +118,51 @@
                 product_value: '',
                 is_login: false,
                 user_logged: {},
-                test: 'text '
+                test: 'text ',
+                recharges: [],
+                contacts: [],
+                planes_cubacel: [],
+                planes_nauta: [],
+                autocomplete_source: '',
+                contact_selected: {}
             }
         },
+        created: function(){
+            this.initData();
+            window.eventsHub.$on('handleSelectPlanCard', (plan) => {this.handleSelectedPlanCard(plan)});
+            window.eventsHub.$on('removePlanFromOrder', plan => this.handleRemovePlanFromOrder(plan) );
+            window.eventsHub.$on('showView', view => this.handleShowView(view) );
+            window.eventsHub.$on('showUserProfile', () => this.showUserProfile() );
+            window.eventsHub.$on('showNewRecharge', () => this.showNewRecharge() );
+            window.eventsHub.$on('updateContact', contact => this.updateContact(contact));
+            this.handleIsLogin();
+        },
         methods: {
+            updateContact(contact){
+                console.log(contact);
+                this.contact_selected = contact;
+            },
+            updateContactSelected(contact_selected){
+                this.contact_selected = contact_selected;
+            },
+            handlePrepend(product){
+                switch (product.name) {
+                    case('Cubacel'):
+                        return '+53';
+                    case('Nauta'):
+                        return '@';
+                    case('SMS'):
+                        return '+53';
+                }
+                console.log(product);
+            },
+            initData(){
+                this.user_logged = this.user;
+                this.recharges = this.recharges_prop;
+                this.contacts = this.contacts_prop;
+                this.planes_cubacel = this.planes_cubacel_prop;
+                this.planes_nauta = this.planes_nauta_prop;
+            },
             showNewRecharge(){
                 this.active_view = 'products_cards';
             },
@@ -114,6 +181,10 @@
                 this.active_view = 'user_dashboard';
                 this.user_logged = data.user;
                 this.is_login = true;
+                this.recharges = data.recharges;
+                this.contacts = data.user_contacts;
+                this.planes_cubacel = data.planes_cubacel;
+                this.planes_nauta = data.planes_nauta;
             },
             handleShowView(view){
                 this.active_view = view;
@@ -140,11 +211,11 @@
                 if(this.is_login){
                     this.active_view = product.product.name;
                     this.selected_product = product.product;
-                    this.product_value = product.product_value
+                    this.product_value = product.product_value;
+                    this.autocomplete_source = product.autocomplete_source
                 } else {
                     this.active_view = 'login'
                 }
-
             },
             goBackToCards(){
                 this.active_view = 'products_cards';

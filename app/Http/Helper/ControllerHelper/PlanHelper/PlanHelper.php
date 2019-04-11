@@ -61,6 +61,7 @@ class PlanHelper
             'description' => $this->request->plan_description,
             'price' => $this->request->price,
             'product_id' => $this->request->product_id,
+            'balance' => $this->request->balance,
         ]);
         $this->plan = new PlanesFormatter($this->plan);
    }
@@ -99,6 +100,7 @@ class PlanHelper
        $this->plan->name = $this->request->plan_name;
        $this->plan->description = $this->request->plan_description;
        $this->plan->price = $this->request->price;
+       $this->plan->balance = $this->request->balance;
        $this->plan->product_id = $this->request->product_id;
        $this->plan->save();
        $this->plan = new PlanesFormatter($this->plan);

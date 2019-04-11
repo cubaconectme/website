@@ -1,5 +1,5 @@
 <template>
-    <div class="mainmenu-area" data-spy="affix" data-offset-top="100" :style="(user) ? 'background-color: #138fc2;' : ''">
+    <div class="mainmenu-area" data-spy="affix"  :style="(user) ? 'background-color: #138fc2;' : ''">
         <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#primary-menu">
@@ -7,15 +7,15 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a href="#" class="navbar-brand logo">
+                <a href="#" class="navbar-brand">
                     <h2>{{ app_name }}</h2>
                 </a>
             </div>
             <nav class="collapse navbar-collapse" id="primary-menu">
                 <ul class="nav navbar-nav navbar-right">
-                    <li class=""><a href="#home-page" @click="showLoginView('products_cards','inicio')">Inicio</a></li>
+                    <li class=""><a href="#home-page" @click="showLoginView('inicio','inicio')">Inicio</a></li>
                     <li><a href="#service-page" @click="showLoginView('products_cards','recargas')">Recargas</a></li>
-                    <li><a href="#contact-page">Contact</a></li>
+                    <!--<li><a href="#contact-page">Contact</a></li>-->
                     <li v-if="!user_logged">
                         <a href="#service-page" @click="showLoginView('login','login')">
                             Login
@@ -56,7 +56,6 @@
         </div>
     </div>
 </template>
-
 <script>
     export default {
         props:{
@@ -89,9 +88,15 @@
                 this.user_logged = this.user;
             },
             showLoginView(view){
-                let status = (view === 'inicio');
+                let status = (!this.user_logged && view === 'inicio');
+                let temp_view = '';
+                if(view === 'inicio'){
+                    temp_view = (this.user_logged) ? 'user_dashboard' : 'products_cards';
+                } else {
+                    temp_view = view;
+                }
 
-                window.eventsHub.$emit('showView',view);
+                window.eventsHub.$emit('showView',temp_view );
                 window.eventsHub.$emit('showPrincipalView',status);
             },
             logoutUser(){
@@ -120,6 +125,13 @@
 </script>
 
 <style scoped>
+    .mainmenu-area{
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
+    }
+    .mainmenu-area #primary-menu > ul > li > a {
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
     .dropdown-menu-child:hover{
         color: blueviolet;
     }

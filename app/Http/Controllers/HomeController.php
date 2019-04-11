@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Helper\ControllerHelper\HomeHelper\HomeViewHelper;
 use App\Http\Helper\ControllerHelper\UserHelper\HomeHelper;
 use App\Http\Helper\DataFormatter\Product\ProductFormatter;
 use App\Product;
@@ -37,15 +38,8 @@ class HomeController extends Controller
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function indexView(){
-        $products = Product::with(['planes' => function($plan){
-            $plan->with('promotions');
-        }])->get();
 
-        $user = (Auth::check()) ? Auth::user() : null;
-
-        $products->transform(function($prod){
-            return new ProductFormatter($prod);
-        });
-        return view('welcome')->with(['products' => $products, 'user' => $user]);
+        $home_data = new HomeViewHelper();
+        return view('welcome')->with($home_data->toArray());
     }
 }

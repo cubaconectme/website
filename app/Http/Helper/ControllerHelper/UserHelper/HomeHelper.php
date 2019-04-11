@@ -43,7 +43,7 @@ class HomeHelper
      */
     private function initLastRecharges(){
         $this->products = Product::with(['recharge' => function($re){
-            $re->with(['plan','contact','promotion'])->where('user_id',$this->user->id);
+            $re->with(['contact','promotion'])->where('user_id',$this->user->id);
         }])->get();
     }
 

@@ -3,7 +3,9 @@
         <th scope="row">{{ product.product_id }}</th>
         <td>{{ product.name }}</td>
         <td>{{ product.description }}</td>
-        <td>{{ product.image_url }}</td>
+        <td>
+            <img width="80px" height="80px" :src="product.image_url" alt="">
+        </td>
         <td>{{ product.product_placeholder }}</td>
         <td>
             <div>

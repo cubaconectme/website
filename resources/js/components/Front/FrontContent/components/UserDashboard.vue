@@ -172,8 +172,6 @@
                                                 </div>
                                             </div>
                                             <div class="text-right price-bonus" style="">Precio <span> 20.00 usd </span></div>
-
-
                                             <div class="text-right bonus-card-footer"> vence 30 de abril</div>
                                         </div>
                                     </div>
@@ -220,14 +218,14 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-8 col-sm-offset-4 text-right" style="margin-top: 30px">
-                            Escoge un bonus o una <button class="button"> Nueva Recarga</button>
+                            Escoge un bonus o una <button class="button" @click="newRecharge"> Nueva Recarga</button>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-sm-4" >
+            <div class="col-sm-4" style="border-radius: 0;">
                 <h4>Mis Contactos</h4>
-                <div class="contact-section">
+                <div class="contact-section" >
                     <div class="list-group list-group-accent">
                         <div class="list-group-item list-group-item-accent-secondary bg-light text-center font-weight-bold text-muted text-uppercase small">
                             Contactos
@@ -255,8 +253,8 @@
                                         </div>
                                         <div class="col-sm-12">
                                             <div style="display:inline-block;">
-                                                <button class="btn btn-primary btn-xs">Recargar</button>
-                                                <button class="btn btn-primary btn-xs">Enviar Mensaje</button>
+                                                <button class="button button-xs">Recargar</button>
+                                                <button class="button button-xs">Enviar Mensaje</button>
                                             </div>
                                         </div>
                                     </div>
@@ -286,8 +284,8 @@
                                         </div>
                                         <div class="col-sm-12">
                                             <div style="display:inline-block;">
-                                                <button class="btn btn-primary btn-xs">Recargar</button>
-                                                <button class="btn btn-primary btn-xs">Enviar Mensaje</button>
+                                                <button class="button button-xs">Recargar</button>
+                                                <button class="button button-xs">Enviar Mensaje</button>
                                             </div>
                                         </div>
                                     </div>
@@ -317,8 +315,8 @@
                                         </div>
                                         <div class="col-sm-12">
                                             <div style="display:inline-block;">
-                                                <button class="btn btn-primary btn-xs">Recargar</button>
-                                                <button class="btn btn-primary btn-xs">Enviar Mensaje</button>
+                                                <button class="button button-xs">Recargar</button>
+                                                <button class="button button-xs">Enviar Mensaje</button>
                                             </div>
                                         </div>
                                     </div>
@@ -337,6 +335,24 @@
         props:{
             user:{
                required: true
+            },
+            recharges:{
+                required: false
+            },
+            contacts: {
+                required: false
+            },
+            planes_cubacel: {
+                required: false
+            },
+            planes_nauta:{
+                required: false
+            },
+        },
+        methods: {
+            newRecharge: function(){
+                console.log('click');
+                window.eventsHub.$emit('showView','products_cards');
             }
         },
         name: "UserDashboard"
@@ -356,6 +372,12 @@
     .button-default{
         background: #87a6cd;
         color: #1c294e;
+    }
+
+    .button-xs{
+        padding: 1px 5px;
+        font-size: 12px;
+        line-height: 1.5;
     }
 
     .card-bonus{
@@ -394,5 +416,13 @@
         //border: solid 1px black;
         max-height: 500px;
     }
-
+    .list-group-item:first-child {
+         border-top-left-radius: 0;
+         border-top-right-radius: 0;
+    }
+    .list-group-item:last-child {
+        margin-bottom: 0;
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+    }
 </style>

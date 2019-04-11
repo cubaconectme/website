@@ -34,7 +34,7 @@ class HomeViewHelper
     public function __construct()
     {
         $this->products = $this->getProducts();
-        dd($this->authUser());
+        //dd($this->authUser());
         if($this->authUser()) {
             $this->initData();
         }
